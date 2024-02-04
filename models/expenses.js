@@ -3,12 +3,11 @@ const mongoose = require('mongoose');
 const expencesSchema = new mongoose.Schema({
     userId: {
         type: String,
-        require: true,
     },
     data: [{
         date: {
-            type: Date,
-            require: true
+            type: String,
+            default: ''
         },
         paidTo: {
             type: String,

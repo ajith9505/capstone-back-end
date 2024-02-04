@@ -36,14 +36,16 @@ router.post('/add-expence', async (req, res) => {
                 amount,
                 description,
                 balance
-            }),
-
-                await Expencses.findOneAndUpdate({ userId: userId }, {
-                    $set: {
-                        'currentBalance': user.currentBalance - amount
-                    }
-                })
+            })
         }
+
+        await Expencses.findOneAndUpdate({ userId: userId }, {
+            $set: {
+                'currentBalance': user.currentBalance - amount
+            }
+        })
+
+        user.save();
 
 
         res.status(201).json({ message: "Successfully added..." })
@@ -64,13 +66,13 @@ router.get('/user-expenses/:Id', async (req, res) => {
 //POST/ home/add-balance
 router.post('/add-balance', async (req, res) => {
     try {
-        const { userId, amount } = req.body;
+        const { userId, amount, currentBalance } = req.body;
         const user = await Expencses.findOne({ userId: userId })
 
         if (user) {
             await Expencses.findOneAndUpdate({ userId: userId }, {
                 $set: {
-                    "currentBalance": amount
+                    "currentBalance": parseInt(amount) + parseInt(currentBalance)
                 }
             })
         } else {
@@ -92,12 +94,43 @@ router.post('/add-balance', async (req, res) => {
 
 //DELETE/ home/delete
 router.delete('/delete', async (req, res) => {
-    const { userId, expenceId } = req.body
-    const user = await Expencses.findOne({ userId: userId })
+    try {
+        const { userId, rowId } = req.body
+        const user = await Expencses.findOne({ userId: userId })
 
-    const itemIndex = user.dsta.findIndex(({ id }) => id === expenceId);
-    if (itemIndex >= 0) {
-        myArray.splice(itemIndex, 1);
+        const itemIndex = user.data.findIndex(({ id }) => id === rowId);
+        if (itemIndex >= 0) {
+            user.data.splice(itemIndex, 1);
+        }
+        user.save();
+        res.send('deleted')
+    } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+    }
+})
+
+//PUT/ home/edit
+router.put('/edit', async (req, res) => {
+    try {
+        const { userId, rowId, date, paidTo, paidFor, amount, description } = req.body
+        
+        Expencses.findOne({ userId: userId }).then(doc => {
+            const data = doc.data.id(rowId);
+            data.date= date
+            data.paidTo= paidTo
+            data.paidFor= paidFor
+            data.amount= amount
+            data.description= description
+            doc.save(); 
+           
+        }).catch(err => {
+            console.log('Error:', err);
+        });
+        res.send('edited')
+    } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
     }
 })
 
