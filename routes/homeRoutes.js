@@ -72,9 +72,10 @@ router.post('/add-balance', async (req, res) => {
         if (user) {
             await Expencses.findOneAndUpdate({ userId: userId }, {
                 $set: {
-                    "currentBalance": parseInt(amount) + parseInt(currentBalance)
+                    "currentBalance": parseInt(amount) + currentBalance
                 }
             })
+            res.status(200).json({ msg: 'added!' })
         } else {
             const currentBalance = amount;
             const user = new Expencses({
@@ -83,6 +84,7 @@ router.post('/add-balance', async (req, res) => {
             })
 
             await user.save();
+            res.status(200).json({ msg: 'added!' })
 
         }
     }
@@ -114,16 +116,16 @@ router.delete('/delete', async (req, res) => {
 router.put('/edit', async (req, res) => {
     try {
         const { userId, rowId, date, paidTo, paidFor, amount, description } = req.body
-        
+
         Expencses.findOne({ userId: userId }).then(doc => {
             const data = doc.data.id(rowId);
-            data.date= date
-            data.paidTo= paidTo
-            data.paidFor= paidFor
-            data.amount= amount
-            data.description= description
-            doc.save(); 
-           
+            data.date = date
+            data.paidTo = paidTo
+            data.paidFor = paidFor
+            data.amount = amount
+            data.description = description
+            doc.save();
+
         }).catch(err => {
             console.log('Error:', err);
         });

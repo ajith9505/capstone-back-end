@@ -23,17 +23,6 @@ router.post("/register", async (req, res) => {
         await user.save();
         res.status(201).json({ msg: "User registered successfully" });
 
-        // const payload = {
-        //   user: {
-        //     id: user._id,
-        //   },
-        // };
-
-        // jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" }),
-        //   (err, token) => {
-        //     if (err) throw err;
-        //     res.json({ token });
-        //   };
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Server error");
@@ -47,12 +36,12 @@ router.post("/login", async (req, res) => {
     try {
         let user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ msg: "Invalid Credentials" });
+            return res.status(401).send("Invalid Credentials");
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ msg: "Invalid Credentials" });
+            return res.status(401).send("Invalid Credentials");
         }
 
         const payload = {
